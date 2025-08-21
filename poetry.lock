@@ -2505,17 +2505,6 @@ docs = ["sphinx (>=1.6.5)", "sphinx-rtd-theme"]
 tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
-name = "pysqlcipher3"
-version = "1.2.0"
-description = "DB-API 2.0 interface for SQLCIPHER 3.x"
-optional = false
-python-versions = ">=3.3"
-groups = ["main"]
-files = [
-    {file = "pysqlcipher3-1.2.0.tar.gz", hash = "sha256:3c8033812655947ebf29a809ac5106b2bc69be0274eaccef6b58f4580c8d06c5"},
-]
-
-[[package]]
 name = "pytest"
 version = "8.4.1"
 description = "pytest: simple powerful testing with Python"
@@ -2854,6 +2843,25 @@ files = [
 ]
 
 [[package]]
+name = "sqlcipher3-binary"
+version = "0.5.4"
+description = "DB-API 2.0 interface for SQLCipher 3.x"
+optional = true
+python-versions = "*"
+groups = ["main"]
+markers = "extra == \"sqlcipher\""
+files = [
+    {file = "sqlcipher3_binary-0.5.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e0264a85f54537647e737be3c1250ab202cc3b260bd3b4256cf301f3a0c0f570"},
+    {file = "sqlcipher3_binary-0.5.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:be70bcf780abda9df53facc45c7cdc45d64e20b4869eebdf2e5e3ee636f5ec0f"},
+    {file = "sqlcipher3_binary-0.5.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fe9e4303725dd98d60af26de0a6d5105a20b32e37a43fc3d18cbaaba6dbb22e5"},
+    {file = "sqlcipher3_binary-0.5.4-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:82c8f208f153b1a5e7b47165d8a462526294b7330fae77b7747b25361eeeca53"},
+    {file = "sqlcipher3_binary-0.5.4-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:eb74dd533c59662f0b4d79c75f593d02688343d927ef4a45706d3debf5b3f05c"},
+    {file = "sqlcipher3_binary-0.5.4-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5ce2a4ce0036db4a6f567ba3141e5f16eab681bc6593ad1f58c7c1679134aa0f"},
+    {file = "sqlcipher3_binary-0.5.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:947594dd8047f5d7f1f39738526a08ea2a76c270df9207e229a80580b547a30a"},
+    {file = "sqlcipher3_binary-0.5.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f25524d5098fdd57fea74cf14de4ced498f50a2703c224187e3042462d4541f8"},
+]
+
+[[package]]
 name = "toolz"
 version = "1.0.0"
 description = "List processing tools and functional utilities"
@@ -3180,8 +3188,9 @@ propcache = ">=0.2.1"
 [extras]
 bbs = ["ursa-bbs-signatures"]
 didcommv2 = ["didcomm-messaging"]
+sqlcipher = ["sqlcipher3-binary"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "74b15d30512b9191b9a42a2982d8aed2e335d7e952c72abaf1c2796bfc86335e"
+content-hash = "3c568a14c2c4e8b1197a531992b70a1087ce34a25567270f375f71357044ce0c"
