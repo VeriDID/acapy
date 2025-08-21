@@ -69,8 +69,8 @@ ursa-bbs-signatures = { version = "~1.0.1", optional = true }
 didcomm-messaging = { version = "^0.1.1a0", optional = true }
 
 # database_manager
-psycopg = {version = "^3.2.1", extras = ["pool", "binary"]}  # Add Psycopg with pooling
-sqlcipher3-binary = { version = ">=0.5.4", optional = true }  # SQLCipher with SQLite 3.46+
+psycopg = {version = "^3.2.1", extras = ["pool", "binary"]}  
+sqlcipher3-binary = { version = ">=0.5.4", optional = true }  
 
 
 [tool.poetry.group.dev.dependencies]
@@ -126,12 +126,12 @@ include = ["acapy_agent/**/*.py"]
 
 line-length = 90
 
-# Exclude files that have import issues when checked directly
+# Exclude MongoDB and SQLite test files that require specific database setup
 extend-exclude = [
-    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_TagsqlEncoder_ALL_some_test_v0_1.py",
-    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_TagsqlEncoder_ALL_tagquery_to_mongo_v0_2.py",
+    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_encoder_basic.py",
+    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_tagquery_conversion.py",
     "acapy_agent/database_manager/wql_nosql/tests/test_mongo_TagsqlEncoder_ALL_tests.py",
-    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_TagsqlEncoder_ALL_wql_tag_mongo_v0_3_copy.py",
+    "acapy_agent/database_manager/wql_nosql/tests/test_mongo_wql_integration.py",
     "acapy_agent/database_manager/wql_nosql/tests/test_sqlite_TagsqlEncoder_compare_conj.py",
     "acapy_agent/database_manager/wql_nosql/tests/test_sqlite_TagsqlEncoder_or_conj.py",
     "acapy_agent/database_manager/wql_nosql/tests/test_tags_after_removed_plaintext.py",
