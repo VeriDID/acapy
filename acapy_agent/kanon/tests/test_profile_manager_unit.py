@@ -87,7 +87,6 @@ async def test_profile_manager_db_kms_no_health_checks(monkeypatch):
     mgr = module.KanonAnonProfileManager()
     ctx = InjectionContext()
 
-    # These should succeed now - health checks removed
     monkeypatch.setattr(module, "KanonStoreConfig", _KCfgDBFail)
     prof = await mgr.provision(ctx, config={"test": True})
     assert isinstance(prof, module.KanonAnonCredsProfile)
