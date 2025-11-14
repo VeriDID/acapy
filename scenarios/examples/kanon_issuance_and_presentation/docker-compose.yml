@@ -1,27 +1,26 @@
  services:
-  agency:
+  kanon-postgres:
     image: acapy-test
     ports:
       - "3001:3001"
     command: >
       start
-        --label Agency
+        --label kanon-postgres
         --inbound-transport http 0.0.0.0 3000
         --outbound-transport http
-        --endpoint http://agency:3000
+        --endpoint http://kanon-postgres:3000
         --admin 0.0.0.0 3001
         --admin-insecure-mode
         --tails-server-base-url http://tails:6543
         --genesis-url https://test.bcovrin.vonx.io/genesis
-        --wallet-type askar
-        --wallet-name agency
+        --wallet-type kanon-anoncreds
+        --wallet-name kanon-postgres
         --wallet-key insecure
+        --wallet-storage-type postgres_storage
+        --wallet-storage-config "{\"url\":\"wallet-db:5432\",\"max_connections\":100,\"min_idle_count\":5,\"max_idle\":10.0,\"max_lifetime\":7200.0}"
+        --wallet-storage-creds "{\"account\":\"DB_USER\",\"password\":\"DB_PASSWORD\",\"admin_account\":\"DB_USER\",\"admin_password\":\"DB_PASSWORD\"}"
         --auto-provision
-        --multitenant
-        --multitenant-admin
-        --jwt-secret insecure
-        --multitenancy-config wallet_type=single-wallet-askar key_derivation_method=RAW
-        --log-level info
+        --log-level debug
         --debug-webhooks
         --notify-revocation
     healthcheck:
@@ -33,51 +32,25 @@
     depends_on:
       tails:
         condition: service_started
+      wallet-db:
+        condition: service_healthy
 
-  holder_anoncreds:
+  bob:
     image: acapy-test
     ports:
       - "3002:3001"
     command: >
       start
-        --label Holder-AnonCreds
+        --label Bob
         --inbound-transport http 0.0.0.0 3000
         --outbound-transport http
-        --endpoint http://holder_anoncreds:3000
-        --admin 0.0.0.0 3001
-        --admin-insecure-mode
-        --tails-server-base-url http://tails:6543
-        --genesis-url https://test.bcovrin.vonx.io/genesis
-        --wallet-type askar-anoncreds
-        --wallet-name holder_anoncreds
-        --wallet-key insecure
-        --auto-provision
-        --log-level info
-        --debug-webhooks
-        --monitor-revocation-notification
-    healthcheck:
-      test: curl -s -o /dev/null -w '%{http_code}' "http://localhost:3001/status/live" | grep "200" > /dev/null
-      start_period: 30s
-      interval: 7s
-      timeout: 5s
-      retries: 5
-
-  holder_indy:
-    image: acapy-test
-    ports:
-      - "3003:3001"
-    command: >
-      start
-        --label Holder-Indy
-        --inbound-transport http 0.0.0.0 3000
-        --outbound-transport http
-        --endpoint http://holder_indy:3000
+        --endpoint http://bob:3000
         --admin 0.0.0.0 3001
         --admin-insecure-mode
         --tails-server-base-url http://tails:6543
         --genesis-url https://test.bcovrin.vonx.io/genesis
         --wallet-type askar
-        --wallet-name holder_indy
+        --wallet-name bob
         --wallet-key insecure
         --auto-provision
         --log-level info
@@ -95,18 +68,15 @@
     build:
       context: ../..
     environment:
-      - AGENCY=http://agency:3001
-      - HOLDER_ANONCREDS=http://holder_anoncreds:3001
-      - HOLDER_INDY=http://holder_indy:3001
+      - KANON_POSTGRES=http://kanon-postgres:3001
+      - BOB=http://bob:3001
     volumes:
       - ./example.py:/usr/src/app/example.py:ro,z
     command: python -m example
     depends_on:
-      agency:
+      kanon-postgres:
         condition: service_healthy
-      holder_anoncreds:
-        condition: service_healthy
-      holder_indy:
+      bob:
         condition: service_healthy
 
   tails:
@@ -122,3 +92,16 @@
       --storage-path /tmp/tails-files
       --log-level INFO
 
+  wallet-db:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=DB_USER
+      - POSTGRES_PASSWORD=DB_PASSWORD
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U DB_USER"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
