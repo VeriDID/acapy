@@ -15,8 +15,8 @@ permissions:
   checks: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -25,11 +25,11 @@ defaults:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Run on openwallet-foundation and non-draft PRs or on non-PR events
-    if: (github.repository == 'openwallet-foundation/acapy') && ((github.event_name == 'pull_request' && github.event.pull_request.draft == false) || (github.event_name != 'pull_request'))
+    # Run on openwallet-foundation, VeriDID fork, and non-draft PRs or on non-PR events
+    if: (github.repository == 'openwallet-foundation/acapy' || github.repository == 'VeriDID/acapy') && ((github.event_name == 'pull_request' && github.event.pull_request.draft == false) || (github.event_name != 'pull_request'))
     steps:
       - name: checkout-acapy
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
       - name: Check changed files
@@ -38,9 +38,9 @@ jobs:
         with:
           files_yaml: |
             scenarios: "scenarios/**/*"
-            src: 
+            src:
               - acapy_agent/**/*
-              - poetry.lock 
+              - poetry.lock
               - pyproject.toml
       - name: Check if scenarios or src files changed
         id: check-if-scenarios-or-src-changed
@@ -60,9 +60,23 @@ jobs:
           cache: "poetry"
       - name: Run Scenario Tests
         if: steps.check-if-scenarios-or-src-changed.outputs.run_tests != 'false'
+        id: test-run
+        continue-on-error: true
         run: |
           # Build the docker image for testing
           docker build -t acapy-test -f docker/Dockerfile.run .
           cd scenarios
           poetry install --no-root
-          poetry run pytest -m examples
+          poetry run pytest -m examples -v --tb=short
+      - name: Show kanon container logs on failure
+        if: steps.test-run.outcome == 'failure'
+        run: |
+          echo "=== kanon-postgres container logs ==="
+          cd scenarios/examples/kanon_issuance_and_presentation
+          docker compose logs kanon-postgres --tail=2000 || true
+          echo ""
+          echo "=== All container logs ==="
+          docker compose logs --tail=500 || true
+      - name: Fail if tests failed
+        if: steps.test-run.outcome == 'failure'
+        run: exit 1
