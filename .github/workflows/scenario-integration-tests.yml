@@ -26,7 +26,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     # Run on openwallet-foundation and non-draft PRs or on non-PR events
-    if: (github.repository == 'openwallet-foundation/acapy') && ((github.event_name == 'pull_request' && github.event.pull_request.draft == false) || (github.event_name != 'pull_request'))
+    if: ((github.event_name == 'pull_request' && github.event.pull_request.draft == false) || (github.event_name != 'pull_request'))
     steps:
       - name: checkout-acapy
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
