@@ -49,20 +49,48 @@ class ExampleRunner:
                 f"Cleanup failed with exit status {exit_status}", exit_status
             )
 
+    def capture_logs(self):
+        """Capture docker compose logs for debugging."""
+        print("\n" + "=" * 80)
+        print("CONTAINER LOGS ON FAILURE")
+        print("=" * 80)
+        for service in ["kanon-postgres", "bob", "wallet-db", "tails", "example"]:
+            print(f"\n--- {service} logs ---")
+            try:
+                result = subprocess.run(
+                    ["docker", "compose", "-f", self.compose_file, "logs", service, "--tail=500"],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                print(result.stdout)
+                if result.stderr:
+                    print(f"STDERR: {result.stderr}")
+            except Exception as e:
+                print(f"Failed to get logs for {service}: {e}")
+        print("=" * 80 + "\n")
+
     def handle_run(self, *command: str):
         """Handles the run of docker compose/.
 
         raises exception if exit status is non-zero.
         """
+        failed = False
+        exit_status = 0
         try:
             exit_status = self.compose(*command)
             if exit_status != 0:
-                raise ExampleFailedException(
-                    f"Command failed with exit status: {exit_status}",
-                    exit_status=exit_status,
-                )
+                failed = True
         finally:
+            if failed:
+                self.capture_logs()
             self.cleanup()
+
+        if failed:
+            raise ExampleFailedException(
+                f"Command failed with exit status: {exit_status}",
+                exit_status=exit_status,
+            )
 
 
 def pytest_collect_file(parent: Session, file_path: Path):
